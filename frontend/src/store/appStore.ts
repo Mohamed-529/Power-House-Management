@@ -319,9 +319,24 @@ export const useAppStore = create<AppState>()(
       },
 
       updateMaintenance: async (m) => {
-        set((s) => ({
-          maintenance: s.maintenance.map((x) => (x.id === m.id ? m : x)),
-        }));
+        // If marking as completed, call the backend close endpoint which also
+        // restores the vehicle status to Available.
+        if (m.status === 'Completed') {
+          const res = await fetch(`/api/maintenance/${m.id}/close`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to close maintenance record');
+          }
+          await get().fetchInitialData();
+        } else {
+          // For other updates just patch local state
+          set((s) => ({
+            maintenance: s.maintenance.map((x) => (x.id === m.id ? m : x)),
+          }));
+        }
       },
 
       addFuelLog: async (f) => {
