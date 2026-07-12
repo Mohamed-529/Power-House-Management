@@ -72,6 +72,26 @@ export const useAppStore = create<AppState>()(
             fetch('/api/expenses').then((r) => r.json()),
           ]);
 
+          // Helper to normalize backend SCREAMING_CASE status to frontend Title Case
+          const vehicleStatus = (s: string) => {
+            const map: Record<string, string> = {
+              AVAILABLE: 'Available', ON_TRIP: 'On Trip', IN_SHOP: 'In Shop', RETIRED: 'Retired',
+            };
+            return map[s] ?? s;
+          };
+          const driverStatus = (s: string) => {
+            const map: Record<string, string> = {
+              AVAILABLE: 'Available', ON_TRIP: 'On Trip', OFF_DUTY: 'Off Duty', SUSPENDED: 'Suspended',
+            };
+            return map[s] ?? s;
+          };
+          const tripStatus = (s: string) => {
+            const map: Record<string, string> = {
+              DRAFT: 'Draft', DISPATCHED: 'Dispatched', COMPLETED: 'Completed', CANCELLED: 'Cancelled',
+            };
+            return map[s] ?? s;
+          };
+
           const mappedVehicles = Array.isArray(vehiclesRes) ? vehiclesRes.map((v: any) => ({
             id: String(v.id),
             regNo: v.regNumber,
@@ -81,7 +101,7 @@ export const useAppStore = create<AppState>()(
             capacityKg: v.maxCapacityKg,
             odometer: v.odometer,
             acquisitionCost: v.acquisitionCost,
-            status: v.status,
+            status: vehicleStatus(v.status),
             region: 'North',
           })) : [];
 
@@ -94,7 +114,7 @@ export const useAppStore = create<AppState>()(
             contact: d.contactNumber,
             tripCompleted: 0,
             safetyScore: d.safetyScore,
-            status: d.status,
+            status: driverStatus(d.status),
           })) : [];
 
           const mappedTrips = Array.isArray(tripsRes) ? tripsRes.map((t: any) => ({
@@ -107,7 +127,7 @@ export const useAppStore = create<AppState>()(
             driverName: t.driver?.name || `Driver #${t.driverId}`,
             cargoWeight: t.cargoWeightKg,
             plannedDistance: t.plannedDistance,
-            status: t.status,
+            status: tripStatus(t.status),
             createdAt: new Date(t.createdAt).toISOString(),
           })) : [];
 
