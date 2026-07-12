@@ -2,6 +2,7 @@ import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip,
   LineChart, Line, CartesianGrid, AreaChart, Area
 } from 'recharts';
+import { Download } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import { KpiCard } from '../components/ui/KpiCard';
 import { monthlyRevenue } from '../store/mockData';
@@ -47,8 +48,55 @@ export default function Analytics() {
     return { name: v.name, efficiency: liters > 0 ? +(dist / liters).toFixed(1) : 0 };
   });
 
+  // ── CSV export ────────────────────────────────────────────────────────────
+  const exportCSV = () => {
+    const rows: string[][] = [];
+
+    // Summary KPIs
+    rows.push(['Section', 'Metric', 'Value']);
+    rows.push(['Summary', 'Fuel Efficiency (km/l)', fuelEfficiency]);
+    rows.push(['Summary', 'Fleet Utilization (%)', String(utilization)]);
+    rows.push(['Summary', 'Operational Cost (₹)', String(operationalCost)]);
+    rows.push(['Summary', 'Vehicle ROI (%)', roi]);
+    rows.push([]);
+
+    // Vehicle costs
+    rows.push(['Vehicle Costs', 'Vehicle', 'Total Cost (₹)']);
+    vehicleCostData.forEach((v) => rows.push(['Vehicle Costs', v.name, String(v.cost)]));
+    rows.push([]);
+
+    // Fuel efficiency per vehicle
+    rows.push(['Fuel Efficiency', 'Vehicle', 'km/l']);
+    fuelEfficiencyData.forEach((v) => rows.push(['Fuel Efficiency', v.name, String(v.efficiency)]));
+    rows.push([]);
+
+    // Monthly revenue
+    rows.push(['Monthly Revenue', 'Month', 'Revenue (₹)']);
+    monthlyRevenue.forEach((m) => rows.push(['Monthly Revenue', m.month, String(m.revenue)]));
+
+    const csv = rows.map((r) => r.map((cell) => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fleetops-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Reports & Analytics</p>
+        <button
+          onClick={exportCSV}
+          className="btn-ghost flex items-center gap-1.5 text-xs py-1.5 border border-border hover:border-gray-500"
+        >
+          <Download size={13} /> Export CSV
+        </button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label="Fuel Efficiency" value={`${fuelEfficiency} km/l`} accent="green" />
