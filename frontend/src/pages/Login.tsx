@@ -46,7 +46,11 @@ export default function Login() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email, role: data.role.toUpperCase().replace(' ', '_') })
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          role: data.role.toUpperCase().replace(/ /g, '_'),
+        }),
       });
       if (!response.ok) {
         const err = await response.json();
