@@ -42,21 +42,29 @@ export default function Login() {
       setError('Account locked after 5 failed attempts.');
       return;
     }
-    // Simulate auth — accept any valid email/password
-    if (data.password.length < 6) {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, role: data.role.toUpperCase().replace(' ', '_') })
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Invalid credentials.');
+      }
+      const result = await response.json();
+      const user = {
+        id: String(result.id || '1'),
+        name: result.name || data.email.split('@')[0],
+        email: result.email || data.email,
+        role: data.role
+      };
+      login(user, 'mock-jwt-token');
+      navigate('/dashboard', { replace: true });
+    } catch (e: any) {
       setFailCount((c) => c + 1);
-      setError('Invalid credentials.');
-      return;
+      setError(e.message || 'Invalid credentials.');
     }
-    // Mock JWT
-    const user = {
-      id: '1',
-      name: data.email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      email: data.email,
-      role: data.role,
-    };
-    login(user, 'mock-jwt-token');
-    navigate('/dashboard', { replace: true });
   };
 
   return (

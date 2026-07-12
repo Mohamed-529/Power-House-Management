@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
@@ -14,9 +15,17 @@ const roleNav: Record<Role, string[]> = {
 
 export function AppLayout() {
   const user = useAppStore((s) => s.user);
+  const fetchInitialData = useAppStore((s) => s.fetchInitialData);
   const location = useLocation();
 
+  useEffect(() => {
+    if (user) {
+      fetchInitialData().catch(console.error);
+    }
+  }, [user, fetchInitialData]);
+
   if (!user) return <Navigate to="/login" replace />;
+
 
   const allowed = roleNav[user.role];
   const currentBase = '/' + location.pathname.split('/')[1];
