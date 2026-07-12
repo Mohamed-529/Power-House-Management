@@ -11,12 +11,17 @@ import { isLicenseExpired, generateId } from '../utils/format';
 import type { Driver, DriverStatus } from '../types';
 
 const schema = z.object({
-  name: z.string().min(1, 'Required'),
-  licenseNo: z.string().min(1, 'Required'),
+  name: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z\s]+$/, 'Name must contain letters only'),
+  licenseNo: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z0-9-]+$/, 'License No. must be alphanumeric (letters, numbers, hyphens only)'),
   licenseCategory: z.enum(['LMV', 'HMV']),
   licenseExpiry: z.string().min(1, 'Required'),
-  contact: z.string().min(10, 'Min 10 digits'),
-  tripCompleted: z.preprocess((v) => Number(v), z.number().min(0)),
+  contact: z.string()
+    .regex(/^[0-9]{10}$/, 'Contact must be exactly 10 digits'),
+  tripCompleted: z.preprocess((v) => Number(v), z.number().min(0).max(9999)),
   safetyScore: z.preprocess((v) => Number(v), z.number().min(0).max(100)),
   status: z.enum(['Available', 'On Trip', 'Off Duty', 'Suspended']),
 });
@@ -144,12 +149,15 @@ export default function Drivers() {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">Full Name</label>
-            <input {...register('name')} className="input" />
+            <input {...register('name')} className="input" placeholder="e.g. Ramesh Singh"
+              onKeyDown={(e) => { if (/[^a-zA-Z\s]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name.message}</p>}
           </div>
           <div>
             <label className="label">License No.</label>
-            <input {...register('licenseNo')} className="input" />
+            <input {...register('licenseNo')} className="input" placeholder="e.g. DL-88213"
+              onKeyDown={(e) => { if (/[^a-zA-Z0-9-]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
+            {errors.licenseNo && <p className="text-xs text-danger mt-1">{errors.licenseNo.message}</p>}
           </div>
           <div>
             <label className="label">License Category</label>
@@ -164,16 +172,18 @@ export default function Drivers() {
           </div>
           <div>
             <label className="label">Contact</label>
-            <input {...register('contact')} className="input" placeholder="98765xxxxx" />
+            <input {...register('contact')} className="input" placeholder="10 digit number"
+              maxLength={10}
+              onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.contact && <p className="text-xs text-danger mt-1">{errors.contact.message}</p>}
           </div>
           <div>
             <label className="label">Trips Completed</label>
-            <input {...register('tripCompleted')} type="number" className="input" />
+            <input {...register('tripCompleted')} type="number" min={0} max={9999} className="input" />
           </div>
           <div>
             <label className="label">Safety Score (0-100)</label>
-            <input {...register('safetyScore')} type="number" className="input" />
+            <input {...register('safetyScore')} type="number" min={0} max={100} className="input" />
           </div>
           <div>
             <label className="label">Status</label>

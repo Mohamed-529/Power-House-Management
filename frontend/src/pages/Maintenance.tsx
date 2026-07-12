@@ -8,8 +8,10 @@ import { formatNumber, generateId } from '../utils/format';
 
 const schema = z.object({
   vehicleId: z.string().min(1, 'Select a vehicle'),
-  serviceType: z.string().min(1, 'Required'),
-  cost: z.preprocess((v) => Number(v), z.number().positive()),
+  serviceType: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z\s]+$/, 'Service type must contain letters only'),
+  cost: z.preprocess((v) => Number(v), z.number().positive('Must be a positive number')),
   date: z.string().min(1, 'Required'),
   status: z.enum(['Active', 'Completed']),
 });
@@ -66,12 +68,14 @@ export default function Maintenance() {
           </div>
           <div>
             <label className="label">Service Type</label>
-            <input {...register('serviceType')} className="input" placeholder="Oil Change" />
+            <input {...register('serviceType')} className="input" placeholder="e.g. Oil Change"
+              onKeyDown={(e) => { if (/[^a-zA-Z\s]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.serviceType && <p className="text-xs text-danger mt-1">{errors.serviceType.message}</p>}
           </div>
           <div>
             <label className="label">Cost (₹)</label>
-            <input {...register('cost')} type="number" className="input" placeholder="2500" />
+            <input {...register('cost')} type="number" min={1} className="input" placeholder="2500"
+              onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.cost && <p className="text-xs text-danger mt-1">{errors.cost.message}</p>}
           </div>
           <div>

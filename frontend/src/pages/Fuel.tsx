@@ -12,14 +12,14 @@ import { formatNumber, generateId } from '../utils/format';
 const fuelSchema = z.object({
   vehicleId: z.string().min(1, 'Required'),
   date: z.string().min(1, 'Required'),
-  liters: z.preprocess((v) => Number(v), z.number().positive()),
-  costPerLiter: z.preprocess((v) => Number(v), z.number().positive()),
+  liters: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
+  costPerLiter: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
 });
 
 const expenseSchema = z.object({
   tripId: z.string().min(1, 'Required'),
-  toll: z.preprocess((v) => Number(v), z.number().min(0)),
-  other: z.preprocess((v) => Number(v), z.number().min(0)),
+  toll: z.preprocess((v) => Number(v), z.number().min(0, 'Cannot be negative')),
+  other: z.preprocess((v) => Number(v), z.number().min(0, 'Cannot be negative')),
 });
 
 type FuelFormData = z.infer<typeof fuelSchema>;
@@ -66,7 +66,6 @@ export default function Fuel() {
     addExpense({
       id: generateId(),
       tripId: data.tripId,
-      vehicleId: trip?.vehicleId ?? '',
       vehicleName: trip?.vehicleName ?? '',
       toll: data.toll,
       other: data.other,
@@ -179,11 +178,13 @@ export default function Fuel() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Liters</label>
-              <input {...fuelForm.register('liters')} type="number" className="input" />
+              <input {...fuelForm.register('liters')} type="number" min={0.1} step={0.1} className="input"
+                onKeyDown={(e) => { if (/[^0-9.]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             </div>
             <div>
               <label className="label">Cost/Liter (₹)</label>
-              <input {...fuelForm.register('costPerLiter')} type="number" className="input" />
+              <input {...fuelForm.register('costPerLiter')} type="number" min={1} className="input"
+                onKeyDown={(e) => { if (/[^0-9.]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             </div>
           </div>
           <div className="flex justify-end gap-2">
@@ -206,11 +207,13 @@ export default function Fuel() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="label">Toll (₹)</label>
-              <input {...expForm.register('toll')} type="number" className="input" />
+              <input {...expForm.register('toll')} type="number" min={0} className="input"
+                onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             </div>
             <div>
               <label className="label">Other (₹)</label>
-              <input {...expForm.register('other')} type="number" className="input" />
+              <input {...expForm.register('other')} type="number" min={0} className="input"
+                onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             </div>
           </div>
           <div className="flex justify-end gap-2">

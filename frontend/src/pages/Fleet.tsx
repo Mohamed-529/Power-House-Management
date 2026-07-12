@@ -11,13 +11,19 @@ import { formatNumber, generateId } from '../utils/format';
 import type { Vehicle } from '../types';
 
 const schema = z.object({
-  regNo: z.string().min(1, 'Required'),
-  name: z.string().min(1, 'Required'),
+  regNo: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z0-9-]+$/, 'Only letters, numbers and hyphens allowed'),
+  name: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z0-9\s-]+$/, 'Only letters, numbers and hyphens allowed'),
   type: z.enum(['Van', 'Truck', 'Mini', 'Bus']),
-  capacity: z.string().min(1, 'Required'),
-  capacityKg: z.preprocess((v) => Number(v), z.number().positive()),
-  odometer: z.preprocess((v) => Number(v), z.number().min(0)),
-  acquisitionCost: z.preprocess((v) => Number(v), z.number().positive()),
+  capacity: z.string()
+    .min(1, 'Required')
+    .regex(/^[0-9]+\s*(kg|Ton|ton|KG)$/, 'Format: e.g. 500 kg or 5 Ton'),
+  capacityKg: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
+  odometer: z.preprocess((v) => Number(v), z.number().min(0, 'Cannot be negative')),
+  acquisitionCost: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
   status: z.enum(['Available', 'On Trip', 'In Shop', 'Retired']),
   region: z.string().min(1, 'Required'),
 });
@@ -163,12 +169,14 @@ export default function Fleet() {
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">Reg. No.</label>
-            <input {...register('regNo')} className="input" disabled={!!editing} />
+            <input {...register('regNo')} className="input" disabled={!!editing} placeholder="e.g. GJ01AB4521"
+              onKeyDown={(e) => { if (/[^a-zA-Z0-9-]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.regNo && <p className="text-xs text-danger mt-1">{errors.regNo.message}</p>}
           </div>
           <div>
             <label className="label">Name/Mode</label>
-            <input {...register('name')} className="input" />
+            <input {...register('name')} className="input" placeholder="e.g. VAN-05"
+              onKeyDown={(e) => { if (/[^a-zA-Z0-9\s-]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
             {errors.name && <p className="text-xs text-danger mt-1">{errors.name.message}</p>}
           </div>
           <div>
@@ -179,19 +187,25 @@ export default function Fleet() {
           </div>
           <div>
             <label className="label">Capacity (label)</label>
-            <input {...register('capacity')} className="input" placeholder="500 kg" />
+            <input {...register('capacity')} className="input" placeholder="500 kg or 5 Ton" />
+            {errors.capacity && <p className="text-xs text-danger mt-1">{errors.capacity.message}</p>}
           </div>
           <div>
             <label className="label">Capacity (kg)</label>
-            <input {...register('capacityKg')} type="number" className="input" />
+            <input {...register('capacityKg')} type="number" min={1} className="input"
+              onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
+            {errors.capacityKg && <p className="text-xs text-danger mt-1">{errors.capacityKg.message}</p>}
           </div>
           <div>
             <label className="label">Odometer (km)</label>
-            <input {...register('odometer')} type="number" className="input" />
+            <input {...register('odometer')} type="number" min={0} className="input"
+              onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
           </div>
           <div>
             <label className="label">Acq. Cost (₹)</label>
-            <input {...register('acquisitionCost')} type="number" className="input" />
+            <input {...register('acquisitionCost')} type="number" min={1} className="input"
+              onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
+            {errors.acquisitionCost && <p className="text-xs text-danger mt-1">{errors.acquisitionCost.message}</p>}
           </div>
           <div>
             <label className="label">Status</label>

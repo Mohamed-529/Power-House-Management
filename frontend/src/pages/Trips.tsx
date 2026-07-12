@@ -9,12 +9,16 @@ import { isLicenseExpired } from '../utils/format';
 import type { TripStatus } from '../types';
 
 const schema = z.object({
-  source: z.string().min(1, 'Required'),
-  destination: z.string().min(1, 'Required'),
+  source: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z0-9\s,.-]+$/, 'No special characters allowed'),
+  destination: z.string()
+    .min(1, 'Required')
+    .regex(/^[a-zA-Z0-9\s,.-]+$/, 'No special characters allowed'),
   vehicleId: z.string().min(1, 'Select a vehicle'),
   driverId: z.string().min(1, 'Select a driver'),
-  cargoWeight: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
-  plannedDistance: z.preprocess((v) => Number(v), z.number().positive('Must be positive')),
+  cargoWeight: z.preprocess((v) => Number(v), z.number().positive('Must be a positive number')),
+  plannedDistance: z.preprocess((v) => Number(v), z.number().positive('Must be a positive number')),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -40,7 +44,7 @@ export default function Trips() {
 
   const capacityExceeded = selectedVehicle && watchCargo > selectedVehicle.capacityKg;
 
-  const onDispatch = async (data: FormData) => {
+  const onDispatch = (data: FormData) => {
     const errs: string[] = [];
     const veh = vehicles.find((v) => v.id === data.vehicleId);
     const drv = drivers.find((d) => d.id === data.driverId);
@@ -53,34 +57,31 @@ export default function Trips() {
     setDispatchError(errs);
     if (errs.length > 0) return;
 
-    try {
-      await addTrip({
-        source: data.source,
-        destination: data.destination,
-        vehicleId: data.vehicleId,
-        vehicleName: veh!.name,
-        driverId: data.driverId,
-        driverName: drv!.name,
-        cargoWeight: data.cargoWeight,
-        plannedDistance: data.plannedDistance,
-      });
-      setSuccess('Trip dispatched successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      reset({ cargoWeight: 0, plannedDistance: 0, source: '', destination: '', vehicleId: '', driverId: '' });
-      setDispatchError([]);
-    } catch (e: any) {
-      setDispatchError([e.message || 'Failed to dispatch trip. Please try again.']);
-    }
+    addTrip({
+      id: `TR${String(trips.length + 1).padStart(3, '0')}`,
+      source: data.source,
+      destination: data.destination,
+      vehicleId: data.vehicleId,
+      vehicleName: veh!.name,
+      driverId: data.driverId,
+      driverName: drv!.name,
+      cargoWeight: data.cargoWeight,
+      plannedDistance: data.plannedDistance,
+      status: 'Dispatched',
+      eta: 'In 30m',
+      createdAt: new Date().toISOString(),
+    });
+
+    setSuccess('Trip dispatched successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+    reset({ cargoWeight: 0, plannedDistance: 0, source: '', destination: '', vehicleId: '', driverId: '' });
+    setDispatchError([]);
   };
 
-  const updateStatus = async (id: string, status: TripStatus) => {
+  const updateStatus = (id: string, status: TripStatus) => {
     const trip = trips.find((t) => t.id === id);
     if (!trip) return;
-    try {
-      await updateTrip({ ...trip, status });
-    } catch (e: any) {
-      setDispatchError([e.message || `Failed to update trip to ${status}`]);
-    }
+    updateTrip({ ...trip, status });
   };
 
   return (
@@ -115,12 +116,14 @@ export default function Trips() {
           <form onSubmit={handleSubmit(onDispatch)} className="space-y-3">
             <div>
               <label className="label">Source</label>
-              <input {...register('source')} className="input" placeholder="Gandhinagar Depot" />
+              <input {...register('source')} className="input" placeholder="Gandhinagar Depot"
+                onKeyDown={(e) => { if (/[^a-zA-Z0-9\s,.-]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
               {errors.source && <p className="text-xs text-danger mt-1">{errors.source.message}</p>}
             </div>
             <div>
               <label className="label">Destination</label>
-              <input {...register('destination')} className="input" placeholder="Ahmedabad Hub" />
+              <input {...register('destination')} className="input" placeholder="Ahmedabad Hub"
+                onKeyDown={(e) => { if (/[^a-zA-Z0-9\s,.-]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
               {errors.destination && <p className="text-xs text-danger mt-1">{errors.destination.message}</p>}
             </div>
             <div>
@@ -146,12 +149,14 @@ export default function Trips() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label">Cargo Weight (kg)</label>
-                <input {...register('cargoWeight')} type="number" className="input" />
+                <input {...register('cargoWeight')} type="number" min={1} className="input"
+                  onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
                 {errors.cargoWeight && <p className="text-xs text-danger mt-1">{errors.cargoWeight.message}</p>}
               </div>
               <div>
                 <label className="label">Planned Distance (km)</label>
-                <input {...register('plannedDistance')} type="number" className="input" />
+                <input {...register('plannedDistance')} type="number" min={1} className="input"
+                  onKeyDown={(e) => { if (/[^0-9]/.test(e.key) && e.key.length === 1) e.preventDefault(); }} />
               </div>
             </div>
 
