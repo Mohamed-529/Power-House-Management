@@ -8,8 +8,8 @@ import { useAppStore } from '../store/appStore';
 import type { Role } from '../types';
 
 const schema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Min 6 characters'),
+  email: z.string().email('Enter a valid email address (e.g. name@gmail.com)'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst']),
   remember: z.boolean().optional(),
 });
