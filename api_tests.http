@@ -1,0 +1,135 @@
+@baseUrl = http://localhost:3000/api
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. Login (RBAC Check)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@transitops.com",
+  "role": "FLEET_MANAGER"
+}
+
+### 3. Dashboard KPI Stats
+GET {{baseUrl}}/dashboard
+
+### 4. CSV Reports Export
+GET {{baseUrl}}/reports/export
+
+### 5. Add a Vehicle
+POST {{baseUrl}}/vehicles
+Content-Type: application/json
+
+{
+  "regNumber": "MH-12-KL-1234",
+  "model": "Tata Ace Ultra",
+  "type": "Mini Truck",
+  "maxCapacityKg": 900,
+  "acquisitionCost": 600000
+}
+
+### 6. Get All Vehicles
+GET {{baseUrl}}/vehicles
+
+### 7. Get Available Vehicles Only
+GET {{baseUrl}}/vehicles?status=AVAILABLE
+
+### 8. Get Specific Vehicle (replace 1 with actual ID from create response)
+GET {{baseUrl}}/vehicles/1
+
+### 9. Update Specific Vehicle
+PUT {{baseUrl}}/vehicles/1
+Content-Type: application/json
+
+{
+  "odometer": 13000,
+  "status": "AVAILABLE"
+}
+
+### 10. Add a Driver
+POST {{baseUrl}}/drivers
+Content-Type: application/json
+
+{
+  "name": "Arjun Sharma",
+  "licenseNumber": "DL-99202311",
+  "category": "LMV",
+  "expiryDate": "2032-12-31",
+  "contactNumber": "9898989898"
+}
+
+### 11. Get All Drivers
+GET {{baseUrl}}/drivers
+
+### 12. Get Available Drivers Only
+GET {{baseUrl}}/drivers?status=AVAILABLE
+
+### 13. Create a Draft Trip (ensure vehicleId and driverId exist in DB)
+POST {{baseUrl}}/trips
+Content-Type: application/json
+
+{
+  "source": "Mumbai Depot A",
+  "destination": "Pune Hub B",
+  "cargoWeightKg": 500,
+  "plannedDistance": 140,
+  "vehicleId": 1,
+  "driverId": 1
+}
+
+### 14. Dispatch the Trip (replace 1 with trip ID)
+POST {{baseUrl}}/trips/1/dispatch
+
+### 15. Complete the Trip (replace 1 with trip ID)
+POST {{baseUrl}}/trips/1/complete
+Content-Type: application/json
+
+{
+  "endOdometer": 13140,
+  "fuelConsumed": 10
+}
+
+### 16. Cancel the Trip (replace 1 with trip ID)
+POST {{baseUrl}}/trips/1/cancel
+
+### 17. Log Vehicle Maintenance (automatically sets status to IN_SHOP)
+POST {{baseUrl}}/maintenance
+Content-Type: application/json
+
+{
+  "description": "Oil filter replacement",
+  "cost": 3200,
+  "vehicleId": 1
+}
+
+### 18. Get Maintenance Logs
+GET {{baseUrl}}/maintenance
+
+### 19. Log Fuel Fill-up
+POST {{baseUrl}}/fuel
+Content-Type: application/json
+
+{
+  "liters": 35,
+  "cost": 3600,
+  "vehicleId": 1
+}
+
+### 20. Get Fuel Logs
+GET {{baseUrl}}/fuel
+
+### 21. Log Expense
+POST {{baseUrl}}/expenses
+Content-Type: application/json
+
+{
+  "type": "Toll",
+  "cost": 240,
+  "description": "Expressway toll",
+  "vehicleId": 1
+}
+
+### 22. Get Expense Logs
+GET {{baseUrl}}/expenses
