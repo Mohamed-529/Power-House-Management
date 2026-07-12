@@ -1,0 +1,21 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/dashboard/route": "/api/dashboard",
+  "/api/drivers/[id]/route": "/api/drivers/[id]",
+  "/api/drivers/route": "/api/drivers",
+  "/api/expenses/route": "/api/expenses",
+  "/api/fuel/route": "/api/fuel",
+  "/api/health/route": "/api/health",
+  "/api/maintenance/route": "/api/maintenance",
+  "/api/reports/export/route": "/api/reports/export",
+  "/api/trips/[id]/cancel/route": "/api/trips/[id]/cancel",
+  "/api/trips/[id]/complete/route": "/api/trips/[id]/complete",
+  "/api/trips/[id]/dispatch/route": "/api/trips/[id]/dispatch",
+  "/api/trips/route": "/api/trips",
+  "/api/vehicles/[id]/route": "/api/vehicles/[id]",
+  "/api/vehicles/route": "/api/vehicles",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

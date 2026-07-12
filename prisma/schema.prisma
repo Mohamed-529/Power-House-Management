@@ -1,85 +1,99 @@
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "sqlite"
+  url      = "file:./transitops_local.db"
+}
+
 model User {
-  id        String   @id @default(uuid())
+  id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
   name      String
-  role      String   // FLEET_MANAGER, DISPATCHER, SAFETY_OFFICER, FINANCIAL_ANALYST
+  role      String   @default("FLEET_MANAGER")
   createdAt DateTime @default(now())
 }
 
 model Vehicle {
-  id              String           @id @default(uuid())
-  regNumber       String           @unique // Must be unique
-  nameModel       String
-  type            String           // VAN, TRUCK, MINI
-  maxLoadCapacity Float
-  odometer        Float
+  id             Int              @id @default(autoincrement())
+  regNumber      String           @unique
+  model          String
+  type           String
+  maxCapacityKg  Float
+  odometer       Float            @default(0)
   acquisitionCost Float
-  status          String           @default("AVAILABLE") // AVAILABLE, ON_TRIP, IN_SHOP, RETIRED
-  trips           Trip[]
+  status         String           @default("AVAILABLE")
+  
+  trips          Trip[]
   maintenanceLogs MaintenanceLog[]
-  fuelLogs        FuelLog[]
+  fuelLogs       FuelLog[]
+  expenses       Expense[]
 }
 
 model Driver {
-  id              String   @id @default(uuid())
-  name            String
-  licenseNumber   String   @unique // Must be unique
-  licenseCategory String
-  licenseExpiry   DateTime
-  contactNumber   String
-  safetyScore     Float    @default(100.0)
-  status          String   @default("AVAILABLE") // AVAILABLE, ON_TRIP, OFF_DUTY, SUSPENDED
-  trips           Trip[]
+  id            Int          @id @default(autoincrement())
+  name          String
+  licenseNumber String       @unique
+  category      String
+  expiryDate    DateTime
+  contactNumber String
+  safetyScore   Float        @default(100.0)
+  status        String       @default("AVAILABLE")
+  
+  trips         Trip[]
 }
 
 model Trip {
-  id              String    @id @default(uuid())
+  id              Int        @id @default(autoincrement())
   source          String
   destination     String
-  cargoWeight     Float
+  cargoWeightKg   Float
   plannedDistance Float
-  status          String    @default("DRAFT") // DRAFT, DISPATCHED, COMPLETED, CANCELLED
-  vehicleId       String
-  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
-  driverId        String
-  driver          Driver    @relation(fields: [driverId], references: [id])
-  expenses        Expense[]
+  status          String     @default("DRAFT")
+  startOdometer   Float?
+  endOdometer     Float?
+  fuelConsumed    Float?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  vehicleId       Int
+  vehicle         Vehicle    @relation(fields: [vehicleId], references: [id])
+
+  driverId        Int
+  driver          Driver     @relation(fields: [driverId], references: [id])
 }
 
 model MaintenanceLog {
-  id          String   @id @default(uuid())
-  vehicleId   String
-  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
-  serviceType String
+  id          Int      @id @default(autoincrement())
+  description String
   cost        Float
-  date        DateTime
-  status      String   @default("ACTIVE") // ACTIVE, COMPLETED
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  isClosed    Boolean  @default(false)
+
+  vehicleId   Int
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 }
 
 model FuelLog {
-  id        String   @id @default(uuid())
-  vehicleId String
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
-  date      DateTime
+  id        Int      @id @default(autoincrement())
   liters    Float
   cost      Float
+  date      DateTime @default(now())
+
+  vehicleId Int
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 }
 
 model Expense {
-  id          String  @id @default(uuid())
-  tripId      String
-  trip        Trip    @relation(fields: [tripId], references: [id])
-  tollCost    Float   @default(0)
-  otherCost   Float   @default(0)
+  id          Int      @id @default(autoincrement())
+  type        String
+  cost        Float
+  date        DateTime @default(now())
   description String?
+
+  vehicleId   Int
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 }

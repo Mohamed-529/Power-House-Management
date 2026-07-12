@@ -1,0 +1,21 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/dashboard/route": "app/api/dashboard/route.js",
+  "/api/drivers/[id]/route": "app/api/drivers/[id]/route.js",
+  "/api/drivers/route": "app/api/drivers/route.js",
+  "/api/expenses/route": "app/api/expenses/route.js",
+  "/api/fuel/route": "app/api/fuel/route.js",
+  "/api/health/route": "app/api/health/route.js",
+  "/api/maintenance/route": "app/api/maintenance/route.js",
+  "/api/reports/export/route": "app/api/reports/export/route.js",
+  "/api/trips/[id]/cancel/route": "app/api/trips/[id]/cancel/route.js",
+  "/api/trips/[id]/complete/route": "app/api/trips/[id]/complete/route.js",
+  "/api/trips/[id]/dispatch/route": "app/api/trips/[id]/dispatch/route.js",
+  "/api/trips/route": "app/api/trips/route.js",
+  "/api/vehicles/[id]/route": "app/api/vehicles/[id]/route.js",
+  "/api/vehicles/route": "app/api/vehicles/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}
