@@ -4,29 +4,30 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
-    
-    // Self-healing auth check: find user or create mock user if DB is empty during testing
-    let user = await prisma.user.findUnique({ where: { email } });
-    
-    if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email,
-          password: password || "password123",
-          name: email.split('@')[0],
-          role: email.includes('admin') ? 'FLEET_MANAGER' : 'DRIVER'
-        }
-      });
+
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    // Return user with role for Role-Based Access Control (RBAC) frontend logic
-    return NextResponse.json({ 
-      id: user.id, 
-      name: user.name, 
-      email: user.email, 
-      role: user.role 
+    // Find user by email
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+    }
+
+    // Check password (plain text comparison — matches how seed stores it)
+    if (user.password !== password) {
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
+    }
+
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     });
   } catch (error) {
-    return NextResponse.json({ error: "Auth failed" }, { status: 500 });
+    return NextResponse.json({ error: 'Auth failed' }, { status: 500 });
   }
 }
