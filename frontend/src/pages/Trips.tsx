@@ -40,7 +40,7 @@ export default function Trips() {
 
   const capacityExceeded = selectedVehicle && watchCargo > selectedVehicle.capacityKg;
 
-  const onDispatch = (data: FormData) => {
+  const onDispatch = async (data: FormData) => {
     const errs: string[] = [];
     const veh = vehicles.find((v) => v.id === data.vehicleId);
     const drv = drivers.find((d) => d.id === data.driverId);
@@ -53,31 +53,34 @@ export default function Trips() {
     setDispatchError(errs);
     if (errs.length > 0) return;
 
-    addTrip({
-      id: `TR${String(trips.length + 1).padStart(3, '0')}`,
-      source: data.source,
-      destination: data.destination,
-      vehicleId: data.vehicleId,
-      vehicleName: veh!.name,
-      driverId: data.driverId,
-      driverName: drv!.name,
-      cargoWeight: data.cargoWeight,
-      plannedDistance: data.plannedDistance,
-      status: 'Dispatched',
-      eta: 'In 30m',
-      createdAt: new Date().toISOString(),
-    });
-
-    setSuccess('Trip dispatched successfully!');
-    setTimeout(() => setSuccess(''), 3000);
-    reset({ cargoWeight: 0, plannedDistance: 0, source: '', destination: '', vehicleId: '', driverId: '' });
-    setDispatchError([]);
+    try {
+      await addTrip({
+        source: data.source,
+        destination: data.destination,
+        vehicleId: data.vehicleId,
+        vehicleName: veh!.name,
+        driverId: data.driverId,
+        driverName: drv!.name,
+        cargoWeight: data.cargoWeight,
+        plannedDistance: data.plannedDistance,
+      });
+      setSuccess('Trip dispatched successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+      reset({ cargoWeight: 0, plannedDistance: 0, source: '', destination: '', vehicleId: '', driverId: '' });
+      setDispatchError([]);
+    } catch (e: any) {
+      setDispatchError([e.message || 'Failed to dispatch trip. Please try again.']);
+    }
   };
 
-  const updateStatus = (id: string, status: TripStatus) => {
+  const updateStatus = async (id: string, status: TripStatus) => {
     const trip = trips.find((t) => t.id === id);
     if (!trip) return;
-    updateTrip({ ...trip, status });
+    try {
+      await updateTrip({ ...trip, status });
+    } catch (e: any) {
+      setDispatchError([e.message || `Failed to update trip to ${status}`]);
+    }
   };
 
   return (
