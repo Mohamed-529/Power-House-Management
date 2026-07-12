@@ -37,8 +37,8 @@ export const mockFuelLogs: FuelLog[] = [
 ];
 
 export const mockExpenses: ExpenseRecord[] = [
-  { id: 'e1', tripId: 'TR001', vehicleName: 'VAN-05', toll: 120, other: 0, maintenanceCost: 0, total: 120, status: 'Dispatched' },
-  { id: 'e2', tripId: 'TR002', vehicleName: 'TRUCK-11', toll: 340, other: 150, maintenanceCost: 18000, total: 18490, status: 'Completed' },
+  { id: 'e1', tripId: 'TR001', vehicleId: 'v1', vehicleName: 'VAN-05', toll: 120, other: 0, maintenanceCost: 0, total: 120, status: 'Dispatched' },
+  { id: 'e2', tripId: 'TR002', vehicleId: 'v2', vehicleName: 'TRUCK-11', toll: 340, other: 150, maintenanceCost: 18000, total: 18490, status: 'Completed' },
 ];
 
 export const monthlyRevenue = [

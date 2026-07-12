@@ -93,6 +93,7 @@ export interface FuelLog {
 export interface ExpenseRecord {
   id: string;
   tripId: string;
+  vehicleId: string;
   vehicleName: string;
   toll: number;
   other: number;

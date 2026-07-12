@@ -66,6 +66,7 @@ export default function Fuel() {
     addExpense({
       id: generateId(),
       tripId: data.tripId,
+      vehicleId: trip?.vehicleId ?? '',
       vehicleName: trip?.vehicleName ?? '',
       toll: data.toll,
       other: data.other,

@@ -134,6 +134,7 @@ export const useAppStore = create<AppState>()(
           const mappedExpenses = Array.isArray(expensesRes) ? expensesRes.map((e: any) => ({
             id: String(e.id),
             tripId: String(e.vehicleId),
+            vehicleId: String(e.vehicleId),
             vehicleName: e.vehicle?.model || `Vehicle #${e.vehicleId}`,
             toll: e.type === 'Toll' ? e.cost : 0,
             other: e.type !== 'Toll' ? e.cost : 0,
@@ -363,7 +364,7 @@ export const useAppStore = create<AppState>()(
           body: JSON.stringify({
             type: e.toll > 0 ? 'Toll' : 'Other',
             cost: e.toll > 0 ? e.toll : e.other,
-            vehicleId: parseInt(e.vehicleName),
+            vehicleId: parseInt(e.vehicleId),
           }),
         });
         if (!res.ok) {
