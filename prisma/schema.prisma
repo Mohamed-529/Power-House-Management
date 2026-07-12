@@ -1,0 +1,85 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // FLEET_MANAGER, DISPATCHER, SAFETY_OFFICER, FINANCIAL_ANALYST
+  createdAt DateTime @default(now())
+}
+
+model Vehicle {
+  id              String           @id @default(uuid())
+  regNumber       String           @unique // Must be unique
+  nameModel       String
+  type            String           // VAN, TRUCK, MINI
+  maxLoadCapacity Float
+  odometer        Float
+  acquisitionCost Float
+  status          String           @default("AVAILABLE") // AVAILABLE, ON_TRIP, IN_SHOP, RETIRED
+  trips           Trip[]
+  maintenanceLogs MaintenanceLog[]
+  fuelLogs        FuelLog[]
+}
+
+model Driver {
+  id              String   @id @default(uuid())
+  name            String
+  licenseNumber   String   @unique // Must be unique
+  licenseCategory String
+  licenseExpiry   DateTime
+  contactNumber   String
+  safetyScore     Float    @default(100.0)
+  status          String   @default("AVAILABLE") // AVAILABLE, ON_TRIP, OFF_DUTY, SUSPENDED
+  trips           Trip[]
+}
+
+model Trip {
+  id              String    @id @default(uuid())
+  source          String
+  destination     String
+  cargoWeight     Float
+  plannedDistance Float
+  status          String    @default("DRAFT") // DRAFT, DISPATCHED, COMPLETED, CANCELLED
+  vehicleId       String
+  vehicle         Vehicle   @relation(fields: [vehicleId], references: [id])
+  driverId        String
+  driver          Driver    @relation(fields: [driverId], references: [id])
+  expenses        Expense[]
+}
+
+model MaintenanceLog {
+  id          String   @id @default(uuid())
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id])
+  serviceType String
+  cost        Float
+  date        DateTime
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED
+}
+
+model FuelLog {
+  id        String   @id @default(uuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  date      DateTime
+  liters    Float
+  cost      Float
+}
+
+model Expense {
+  id          String  @id @default(uuid())
+  tripId      String
+  trip        Trip    @relation(fields: [tripId], references: [id])
+  tollCost    Float   @default(0)
+  otherCost   Float   @default(0)
+  description String?
+}
