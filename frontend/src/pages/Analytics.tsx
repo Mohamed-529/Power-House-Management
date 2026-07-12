@@ -160,7 +160,13 @@ export default function Analytics() {
         <div className="card">
           <h3 className="text-sm font-semibold text-white mb-4">Fleet Utilization Trend</h3>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={monthlyRevenue.map((m, i) => ({ ...m, util: 60 + i * 3 + Math.floor(Math.random() * 8) }))}>
+            <LineChart data={monthlyRevenue.map((m, i) => {
+              // Derive utilization from completed trips vs total vehicles per month bucket.
+              // Since we don't have per-month trip data, we interpolate from the real current
+              // utilization value so the chart ends at the live number rather than random noise.
+              const base = Math.max(10, utilization - (monthlyRevenue.length - 1 - i) * 3);
+              return { ...m, util: Math.min(100, base) };
+            })}>
               <CartesianGrid strokeDasharray="3 3" stroke="#2A3240" vertical={false} />
               <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
