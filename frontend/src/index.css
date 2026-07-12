@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-bg text-white font-sans antialiased;
+  }
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-sidebar;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card border border-border rounded-xl p-4;
+  }
+  .btn-primary {
+    @apply bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+  .btn-warning {
+    @apply bg-warning hover:bg-amber-600 text-black px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+  .btn-ghost {
+    @apply hover:bg-card text-gray-400 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+  .input {
+    @apply bg-bg border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary w-full;
+  }
+  .label {
+    @apply text-xs text-gray-400 mb-1 block font-medium;
+  }
+  .badge-available {
+    @apply bg-success/20 text-success text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-ontrip {
+    @apply bg-primary/20 text-blue-400 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-inshop {
+    @apply bg-warning/20 text-warning text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-retired {
+    @apply bg-danger/20 text-danger text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-dispatched {
+    @apply bg-primary/20 text-blue-400 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-completed {
+    @apply bg-success/20 text-success text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-draft {
+    @apply bg-gray-700 text-gray-400 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-cancelled {
+    @apply bg-danger/20 text-danger text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-suspended {
+    @apply bg-warning/20 text-warning text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .badge-offduty {
+    @apply bg-gray-700 text-gray-400 text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  .table-row-hover {
+    @apply hover:bg-border/30 transition-colors;
+  }
+}
