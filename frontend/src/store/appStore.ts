@@ -277,6 +277,7 @@ export const useAppStore = create<AppState>()(
       },
 
       addTrip: async (t) => {
+        // Step 1: Create the trip as DRAFT
         const res = await fetch('/api/trips', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -293,13 +294,28 @@ export const useAppStore = create<AppState>()(
           const err = await res.json();
           throw new Error(err.error || 'Failed to create trip');
         }
+        const created = await res.json();
+
+        // Step 2: Immediately dispatch it so vehicle + driver go ON_TRIP
+        const dispatchRes = await fetch(`/api/trips/${created.id}/dispatch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (!dispatchRes.ok) {
+          const err = await dispatchRes.json();
+          throw new Error(err.error || 'Failed to dispatch trip');
+        }
         await get().fetchInitialData();
       },
 
       updateTrip: async (t, updates) => {
-        let endpoint = `/api/trips/${t.id}/dispatch`;
+        let endpoint: string;
         let body = {};
-        if (t.status === 'Completed') {
+
+        if (t.status === 'Dispatched') {
+          // Dispatching a draft trip from the live board
+          endpoint = `/api/trips/${t.id}/dispatch`;
+        } else if (t.status === 'Completed') {
           endpoint = `/api/trips/${t.id}/complete`;
           body = {
             endOdometer: updates?.endOdometer || 0,
@@ -307,6 +323,8 @@ export const useAppStore = create<AppState>()(
           };
         } else if (t.status === 'Cancelled') {
           endpoint = `/api/trips/${t.id}/cancel`;
+        } else {
+          return; // No-op for unrecognised transitions
         }
 
         const res = await fetch(endpoint, {
