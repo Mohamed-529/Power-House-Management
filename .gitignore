@@ -1,4 +1,24 @@
+# Dependencies
 node_modules/
+
+# Prisma local database files
 prisma/*.db
 prisma/*.db-journal
+transitops_local.db
+transitops_local.db-journal
+
+# Next.js build outputs
+.next/
+out/
+build/
+
+# Local env files
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
