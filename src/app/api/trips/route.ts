@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { tripSchema } from '@/lib/validations';
 
-const tripSchema = z.object({
-  source: z.string().min(1),
-  destination: z.string().min(1),
-  cargoWeightKg: z.number().positive(),
-  plannedDistance: z.number().positive(),
-  vehicleId: z.number().int(),
-  driverId: z.number().int(),
-});
 
 export async function POST(req: Request) {
   try {

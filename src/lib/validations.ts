@@ -30,3 +30,22 @@ export const expenseSchema = z.object({
   description: z.string().optional(),
   vehicleId: z.number().int()
 });
+
+export const tripSchema = z.object({
+  source: z.string().min(1),
+  destination: z.string().min(1),
+  cargoWeightKg: z.number().positive(),
+  plannedDistance: z.number().positive(),
+  vehicleId: z.number().int(),
+  driverId: z.number().int(),
+});
+
+export const maintenanceSchema = z.object({
+  description: z.string().default(""),
+  cost: z.number().nonnegative(),
+  vehicleId: z.number().int(),
+  startDate: z.string().optional().transform((str) => str ? new Date(str) : new Date()),
+  endDate: z.string().optional().transform((str) => str ? new Date(str) : null),
+  isClosed: z.boolean().default(false),
+});
+

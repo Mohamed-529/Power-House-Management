@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { maintenanceSchema } from '@/lib/validations';
 
 export async function GET() {
   try {
@@ -16,24 +17,17 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const vehicleId = parseInt(body.vehicleId);
-    const cost = parseFloat(body.cost);
-    
-    if (isNaN(vehicleId) || isNaN(cost)) {
-      return NextResponse.json({ error: "Invalid vehicleId or cost" }, { status: 400 });
+    const validation = maintenanceSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 });
     }
+
+    const { vehicleId } = validation.data;
 
     // Create log AND update vehicle status to IN_SHOP atomically
     const [log] = await prisma.$transaction([
       prisma.maintenanceLog.create({ 
-        data: { 
-          description: body.description || "",
-          cost,
-          vehicleId,
-          startDate: body.startDate ? new Date(body.startDate) : new Date(),
-          endDate: body.endDate ? new Date(body.endDate) : null,
-          isClosed: body.isClosed || false
-        } 
+        data: validation.data
       }),
       prisma.vehicle.update({ 
         where: { id: vehicleId }, 
@@ -45,3 +39,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
